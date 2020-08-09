@@ -1,0 +1,23 @@
+ファイルの形式はカンマ区切りのCSV、
+文字コードはUTF-8、
+改行コードはCR＋LFにしてあります。
+
+各ファイルの1行目にはデータ項目名をつけてあります。
+
+FILEPATH：https://darts.isas.jaxa.jp/pub/　以下のファイルパス
+DATE_OBS：観測開始日時（MissionTime）[sec]
+DATE_END：観測終了日時（MissionTime）[sec]
+XCEN：画像の中心のX軸座標 [arcsec]
+YCEN：画像の中心のY軸座標 [arcsec]
+FOVX：視野領域のX軸方向の幅 [arcsec]
+FOVY：視野領域のX軸方向の幅 [arcsec]
+
+・MissionTime とは、2000-01-01 00:00:00.000 からの経過秒です。
+・位置精度については、以下のような記載があります。
+The permission accuracy of the values in LEVEL-0 data is +－15 arcsec. 
+
+
+飯田さんからデータを送っていただく際には、
+このメールの下部にあります返信用URLをご利用ください。
+利用方法については以下マニュアルをご参照ください。
+https://asp.gigacc.com/doc/Manual-FileTransmit.pdf/?helpid=1774
