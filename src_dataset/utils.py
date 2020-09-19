@@ -13,4 +13,5 @@ def convert_time(previous_df):
     return converted_df
 hinode_df= pd.read_csv(hinode_path)
 swan_df = pd.read_table(swan_path)
-convert_time(hinode_df)
+# print(convert_time(hinode_df))
+print(swan_df)
