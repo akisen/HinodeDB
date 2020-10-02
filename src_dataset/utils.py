@@ -8,8 +8,8 @@ def convert_time(previous_df):
     time_series = time_series +946652400 #UNIX時間(1970/1/1からの経過時間に合わせるために加算)
     time_series = time_series.map(lambda time: datetime.datetime.fromtimestamp(time))
     converted_df["DATE_OBS"] = time_series
-    # time_series = previous_df["DATE_END"]
-    # time_series = time_series +946652400 #UNIX時間(1970/1/1からの経過時間に合わせるために加算)
-    # time_series = time_series.map(lambda time: datetime.datetime.fromtimestamp(time))
-    # converted_df["DATE_END"] = time_series
+    time_series = previous_df["DATE_END"]
+    time_series = time_series +946652400 #UNIX時間(1970/1/1からの経過時間に合わせるために加算)
+    time_series = time_series.map(lambda time: datetime.datetime.fromtimestamp(time))
+    converted_df["DATE_END"] = time_series
     return converted_df
