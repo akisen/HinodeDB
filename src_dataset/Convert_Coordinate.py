@@ -10,7 +10,7 @@ import glob
 import glob
 import utils
 from shapely.geometry import Polygon,Point
-
+from tqdm import tqdm
 YEARS = [2010+i for i in range(10)]
 SOT_SP_PATH = "sot_sp/SOTSP_*.csv"
 SOT_FG_PATH = "sot_fg/SOTFG_*.csv"
@@ -60,17 +60,18 @@ def line_to_polygon_flare(line):
     return polygon
 
 def line_to_polygon_hinode (line):
-    x = [line.XCEN-(line.FOVX//2),line.XCEN+(line.FOVX//2)]
-    y =[line.YCEN-(line.FOVY//2),line.YCEN+(line.FOVY//2)]
-    print(x,y)
-    c=SkyCoord(x*u.arcsec,y*u.arcsec,frame = frames.Helioprojective,obstime= line.DATE_OBS,observer="earth")
-    c = c.transform_to(frames.HeliographicStonyhurst)#TODO: 天球外が撮影範囲に入っているときに変換した際にNaNがはいってしまう→相談(なくすor丸め込む)
-    # print(c)
-    ll_x = c.lat[0].value
-    ll_y = c.lon[0].value
-    ur_x = c.lat[1].value
-    ur_y = c.lon[1].value
-    print(ll_x,ll_y,ur_x,ur_y)
+    ll_x = line.XCEN-(line.FOVX//2)
+    ur_x = line.XCEN+(line.FOVX//2)
+    ll_y = line.YCEN-(line.FOVY//2)
+    ur_y = line.YCEN+(line.FOVY//2)
+    # c=SkyCoord(x*u.arcsec,y*u.arcsec,frame = frames.Helioprojective,obstime= line.DATE_OBS,observer="earth")
+    # c = c.transform_to(frames.HeliographicStonyhurst)#TODO: 天球外が撮影範囲に入っているときに変換した際にNaNがはいってしまう→相談(なくすor丸め込む)
+    # # print(c)
+    # ll_x = c.lat[0].value
+    # ll_y = c.lon[0].value
+    # ur_x = c.lat[1].value
+    # ur_y = c.lon[1].value
+    # print(ll_x,ll_y,ur_x,ur_y)
     polygon = Polygon([(ll_x,ll_y),(ll_x,ur_y),(ur_x,ur_y),(ur_x,ll_y)])
     return polygon
 
@@ -82,9 +83,11 @@ def is_in_time (hinode_line,flare_line):
     hinode_end = hinode_line.DATE_END
     flare_start =  datetime.datetime.strptime(flare_line.event_starttime,"%Y-%m-%dT%H:%M:%S")
     flare_end = datetime.datetime.strptime(flare_line.event_endtime,"%Y-%m-%dT%H:%M:%S")
-    print(flare_start,hinode_obs,flare_end)
+    # print(flare_start,hinode_obs,flare_end)
     return flare_start <= hinode_obs < flare_end
 
+def add_flare_label(hinode_line,flare_line):
+    pass
 def main():
     sot_sp_paths_dic = path_to_dic(SOT_SP_PATH)#各年度でPathを格納した辞書を作成
     sot_fg_paths_dic = path_to_dic(SOT_FG_PATH)
@@ -93,13 +96,14 @@ def main():
     hinode_dics = [sot_sp_paths_dic,sot_fg_paths_dic,eis_paths_dic,xrt_path_dic]
     flare_path_dic = path_to_dic(FLARE_PATH)
     for year in YEARS:
-        print(year)
+        # print(year)
         flare_df = read_flare_csv(flare_path_dic[str(year)])
         for hinode_dic in hinode_dics:
             if (hinode_dic.__len__()==7 and year > 2016): #sot_fgのデータが2016年分までしかないため
                 continue
             else:
                 hinode_df = initialize_hinode_df(hinode_dic[str(year)])
+                pbar = tqdm(total = len(flare_df))
                 for flare_line in flare_df.itertuples():
                     flare_point = line_to_point_flare(flare_line)
                     # print(point)
@@ -108,9 +112,12 @@ def main():
                     for hinode_line in hinode_df.itertuples():
                         hinode_polygon = line_to_polygon_hinode(hinode_line)
                         if is_in_time(hinode_line,flare_line) and is_contained(hinode_polygon,flare_point):
-                            print("intersection")
+                            tqdm.write("intersection\nflare_time{}-{}\nflare_point:{}\nhinode_time{}\nhinode_polygon:XCEN{},YCEN{},FOVX{},FOVY{}".format(flare_line.event_starttime,flare_line.event_endtime,flare_line.hpc_coord,hinode_line.DATE_OBS,hinode_line.XCEN,hinode_line.YCEN,hinode_line.FOVX,hinode_line.FOVY))
                         else:
-                            print("not intersection")
+                            pass
+                            # print("not intersection")
+                    pbar.update(1)
+                pbar.close()
 
 
 main()
