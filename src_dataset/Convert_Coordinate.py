@@ -18,6 +18,33 @@ EIS_PATH = "eis/EIS_*.csv"
 XRT_PATH = "xrt/XRT_*.csv"
 FLARE_PATH = "flare/Flare*.csv"
 
+
+def main():
+    sot_sp_paths_dic = path_to_dic(SOT_SP_PATH)#各年度でPathを格納した辞書を作成
+    sot_fg_paths_dic = path_to_dic(SOT_FG_PATH)
+    eis_paths_dic = path_to_dic(EIS_PATH)
+    xrt_path_dic =path_to_dic(XRT_PATH)
+    hinode_dics = [sot_sp_paths_dic,sot_fg_paths_dic,eis_paths_dic,xrt_path_dic]
+    flare_path_dic = path_to_dic(FLARE_PATH)
+    for year in YEARS:
+        flare_df = read_flare_csv(flare_path_dic[str(year)])
+        for hinode_dic in hinode_dics:
+            if (hinode_dic.__len__()==7 and year > 2016): #sot_fgのデータが2016年分までしかないため
+                continue
+            else:
+                hinode_df = initialize_hinode_df(hinode_dic[str(year)])
+                with tqdm(total = len(flare_df)) as pbar:
+                    for flare_line in flare_df.itertuples():
+                        flare_point = line_to_point_flare(flare_line)
+                        for hinode_line in hinode_df.itertuples():
+                            hinode_polygon = line_to_polygon_hinode(hinode_line)
+                            if is_in_time(hinode_line,flare_line) and is_contained(hinode_polygon,flare_point):
+                                add_flare_label(hinode_line,flare_line)
+                                write_log(hinode_line,flare_line,hinode_dic[str(year)])
+                        pbar.update(1)
+                utils.pickle_dump(hinode_df,"{}.pickle".format(hinode_dic[str(year)].split("/")[-1][:-3]))
+                export_csv(hinode_df,hinode_dic[str(year)])
+
 def path_to_dic(path_str):
     paths = sorted(glob.glob(path_str))
     paths_dic = {path.split("/")[-1][-8:-4]:path for path in paths}
@@ -109,31 +136,6 @@ def export_csv(hinode_df,old_path):
     new_path = "flare_labeled/{}".format(old_path.split("/")[-1])
     hinode_df.to_csv(new_path)
 
-def main():
-    sot_sp_paths_dic = path_to_dic(SOT_SP_PATH)#各年度でPathを格納した辞書を作成
-    sot_fg_paths_dic = path_to_dic(SOT_FG_PATH)
-    eis_paths_dic = path_to_dic(EIS_PATH)
-    xrt_path_dic =path_to_dic(XRT_PATH)
-    hinode_dics = [sot_sp_paths_dic,sot_fg_paths_dic,eis_paths_dic,xrt_path_dic]
-    flare_path_dic = path_to_dic(FLARE_PATH)
-    for year in YEARS:
-        flare_df = read_flare_csv(flare_path_dic[str(year)])
-        for hinode_dic in hinode_dics:
-            if (hinode_dic.__len__()==7 and year > 2016): #sot_fgのデータが2016年分までしかないため
-                continue
-            else:
-                hinode_df = initialize_hinode_df(hinode_dic[str(year)])
-                with tqdm(total = len(flare_df)) as pbar:
-                    for flare_line in flare_df.itertuples():
-                        flare_point = line_to_point_flare(flare_line)
-                        for hinode_line in hinode_df.itertuples():
-                            hinode_polygon = line_to_polygon_hinode(hinode_line)
-                            if is_in_time(hinode_line,flare_line) and is_contained(hinode_polygon,flare_point):
-                                add_flare_label(hinode_line,flare_line)
-                                write_log(hinode_line,flare_line,hinode_dic[str(year)])
-                        pbar.update(1)
-                utils.pickle_dump(hinode_df,"{}.pickle".format(hinode_dic[str(year)].split("/")[-1][:-3]))
-                export_csv(hinode_df,hinode_dic[str(year)])
                 
 
 
