@@ -18,7 +18,6 @@ EIS_PATH = "eis/EIS_*.csv"
 XRT_PATH = "xrt/XRT_*.csv"
 FLARE_PATH = "flare/Flare*.csv"
 
-
 def main():
     sot_sp_paths_dic = path_to_dic(SOT_SP_PATH)#各年度でPathを格納した辞書を作成
     sot_fg_paths_dic = path_to_dic(SOT_FG_PATH)
@@ -40,11 +39,11 @@ def main():
                             hinode_polygon = line_to_polygon_hinode(hinode_line)
                             if is_in_time(hinode_line,flare_line) and is_contained(hinode_polygon,flare_point):
                                 add_flare_label(hinode_line,flare_line)
-                                write_log(hinode_line,flare_line,hinode_dic[str(year)])
+                                write_log(hinode_line,flare_line)
                         pbar.update(1)
                 utils.pickle_dump(hinode_df,"{}.pickle".format(hinode_dic[str(year)].split("/")[-1][:-3]))
                 export_csv(hinode_df,hinode_dic[str(year)])
-
+                
 def path_to_dic(path_str):
     paths = sorted(glob.glob(path_str))
     paths_dic = {path.split("/")[-1][-8:-4]:path for path in paths}
@@ -120,13 +119,8 @@ def add_flare_label(hinode_line,flare_line):
         hinode_line.XFlare.append(flare_label)
         tqdm.write("X:{}".format(flare_label))
 
-def write_log(hinode_line,flare_line,hinode_path):
-    logtext = "intersection\nflare_time{}-{}\nflare_point:{}\nhinode_time{}\nhinode_polygon:XCEN{},YCEN{},FOVX{},FOVY{}".format(flare_line.event_starttime,flare_line.event_endtime,flare_line.hpc_coord,hinode_line.DATE_OBS,hinode_line.XCEN,hinode_line.YCEN,hinode_line.FOVX,hinode_line.FOVY)
-    tqdm.write(logtext)
-    logpath = "logs/log_{}txt".format(hinode_path.split("/")[-1][:-3])
-    with open (logpath,"a") as f:
-        print(logtext,file = f)
-    
+def write_log(hinode_line,flare_line):
+    tqdm.write("intersection\nflare_time{}-{}\nflare_point:{}\nhinode_time{}\nhinode_polygon:XCEN{},YCEN{},FOVX{},FOVY{}".format(flare_line.event_starttime,flare_line.event_endtime,flare_line.hpc_coord,hinode_line.DATE_OBS,hinode_line.XCEN,hinode_line.YCEN,hinode_line.FOVX,hinode_line.FOVY))
 
 def export_csv(hinode_df,old_path):
     hinode_df["BFlare"] = hinode_df["BFlare"].map(lambda x:"   ".join(x))#リストのままだとCSVに書き出しできないのでタブ区切りに変換
@@ -136,7 +130,7 @@ def export_csv(hinode_df,old_path):
     new_path = "flare_labeled/{}".format(old_path.split("/")[-1])
     hinode_df.to_csv(new_path)
 
-                
+
 
 
 main()
