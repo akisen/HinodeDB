@@ -10,10 +10,10 @@ from dateutil.relativedelta import relativedelta
 def get_last_date(dt):
     return dt.replace(day=calendar.monthrange(dt.year, dt.month)[1])
 client = hek.HEKClient()
-years=[2010+i for i in range(10)]
+years=[2014+i for i in range(6)]
 months = [i+1 for i in range(12)]
 for year in years:
-    keys =["SOL_standard","fl_goescls","boundbox_c1ll","boundbox_c1ur","boundbox_c2ll","boundbox_c2ur","event_starttime","event_endtime","search_observatory"]
+    keys =["SOL_standard","fl_goescls","boundbox_c1ll","boundbox_c1ur","boundbox_c2ll","boundbox_c2ur","hpc_coord","event_starttime","event_endtime","search_observatory"]
     Flaredf =pd.DataFrame(columns=keys)
     for month  in months:
         tstart = datetime.date(year,month,1)
@@ -24,7 +24,7 @@ for year in years:
         for result in results:
             tmp_se=pd.Series([result[key] for key in keys],index =Flaredf.columns)
             Flaredf=Flaredf.append(tmp_se,ignore_index=True)
-        time.sleep(600)
+        time.sleep(3600)
         # event_type = 'CE'
         # keys =["SOL_standard","cme_accel","cme_angularwidth","cme_mass","boundbox_c1ll","boundbox_c1ur","boundbox_c2ll","boundbox_c2ur","event_starttime","event_endtime","search_observatory"]
         # results = client.search(hek.attrs.Time(tstart,tend),hek.attrs.EventType(event_type))

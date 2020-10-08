@@ -11,7 +11,7 @@ import glob
 import utils
 from shapely.geometry import Polygon,Point
 from tqdm import tqdm
-YEARS = [2010+i for i in range(10)]
+YEARS = [2012+i for i in range(8)]
 SOT_SP_PATH = "sot_sp/SOTSP_*.csv"
 SOT_FG_PATH = "sot_fg/SOTFG_*.csv"
 EIS_PATH = "eis/EIS_*.csv"
@@ -41,7 +41,7 @@ def main():
                                 add_flare_label(hinode_line,flare_line)
                                 write_log(hinode_line,flare_line)
                         pbar.update(1)
-                utils.pickle_dump(hinode_df,"{}.pickle".format(hinode_dic[str(year)].split("/")[-1][:-3]))
+                utils.pickle_dump(hinode_df,"pickles/{}pickle".format(hinode_dic[str(year)].split("/")[-1][:-3]))
                 export_csv(hinode_df,hinode_dic[str(year)])
                 
 def path_to_dic(path_str):
@@ -72,6 +72,8 @@ def initialize_hinode_df(path):
     return hinode_df
 
 def line_to_point_flare(line):
+    print(line)
+    exit()
     point = line.hpc_coord[6:-1].split(" ")
     point = [float(p) for p in point]#Int型に型変換
     point = Point(point)
