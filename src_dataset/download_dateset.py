@@ -26,7 +26,7 @@ args = parser.parse_args()
 contents = args.contents
 
 client = hek.HEKClient()
-years=[2012+i for i in range(8)]
+years=[2010+i for i in range(10)]
 months = [i+1 for i in range(12)]
 
 def main ():
@@ -78,10 +78,12 @@ def download_flare(tstart,tend,flare_df):
 
 
 def download_colona_hole(tstart,tend,flare_df):
-    pass #CHの場合のダウンロード
+    pass #TODO:CHの場合のダウンロード
+
 def download_active_region(tstart,tend,flare_df):
-    pass #ARの場合のダウンロード
-#TODO:CMEのダウンロードについてはFlareが終わってから実装します
+    pass #TODO: ARの場合のダウンロード
+
+#TODO:CMEのダウンロードについてはFlareが終わってから実装します(小松)
 def download_CME():
     # # event_type = 'CE'
     # keys =["SOL_standard","cme_accel","cme_angularwidth","cme_mass","boundbox_c1ll","boundbox_c1ur","boundbox_c2ll","boundbox_c2ur","event_starttime","event_endtime","search_observatory"]
