@@ -11,12 +11,12 @@ import glob
 import utils
 from shapely.geometry import Polygon,Point
 from tqdm import tqdm
-YEARS = [2010+i for i in range(10)]
+YEARS = [2012+i for i in range(8)]
 SOT_SP_PATH = "sot_sp/SOTSP_*.csv"
 SOT_FG_PATH = "sot_fg/SOTFG_*.csv"
 EIS_PATH = "eis/EIS_*.csv"
 XRT_PATH = "xrt/XRT_*.csv"
-FLARE_PATH = "flare/Flare*.csv"
+FLARE_PATH = "FL/FL*.csv"
 
 def main():
     sot_sp_paths_dic = path_to_dic(SOT_SP_PATH)#各年度でPathを格納した辞書を作成
