@@ -1,1 +1,7 @@
 *.csv
+*.tar.gz
+src_dataset/__pycache__/*
+logs/*
+*.pickle
+
+*.xlsx
