@@ -3,3 +3,5 @@
 src_dataset/__pycache__/*
 logs/*
 *.pickle
+
+*.xlsx
