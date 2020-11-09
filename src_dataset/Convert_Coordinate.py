@@ -32,7 +32,7 @@ def main():
                 continue
             else:
                 hinode_df = initialize_hinode_df(hinode_dic[str(year)])
-                with tqdm(total = len(flare_df)) as pbar:
+                with tqdm(total = len(flare_df),desc="{}".format(hinode_dic[str(year)].split("/")[-1][:-3]))as pbar:
                     for flare_line in flare_df.itertuples():
                         flare_point = line_to_point_flare(flare_line)
                         for hinode_line in hinode_df.itertuples():
@@ -58,10 +58,7 @@ def read_flare_csv(path_str):
     return flare_df
 
 def add_flare_series(df):
-    df["BFlare"] = [ [] for i in range(len(df))]
-    df["CFlare"] = [ [] for i in range(len(df))]
-    df["MFlare"] = [ [] for i in range(len(df))]
-    df["XFlare"] = [ [] for i in range(len(df))]
+    df["Flare"] = [ [] for i in range(len(df))]
     return df
 
 def initialize_hinode_df(path):
@@ -108,16 +105,16 @@ def add_flare_label(hinode_line,flare_line):
     flare_class = flare_line.fl_goescls[0]
     flare_label = "{}:{}".format(flare_line.SOL_standard,flare_line.fl_goescls)
     if(flare_class == "B"):
-        hinode_line.BFlare.append(flare_label)
+        hinode_line.Flare.append(flare_label)
         tqdm.write("B:{}".format(flare_label))
     elif(flare_class == "C"):
-        hinode_line.CFlare.append(flare_label)
+        hinode_line.Flare.append(flare_label)
         tqdm.write("C:{}".format(flare_label))
     elif(flare_class == "M"):
-        hinode_line.MFlare.append(flare_label)
+        hinode_line.Flare.append(flare_label)
         tqdm.write("M:{}".format(flare_label))
     elif(flare_class == "`X"):
-        hinode_line.XFlare.append(flare_label)
+        hinode_line.Flare.append(flare_label)
         tqdm.write("X:{}".format(flare_label))
 
 def write_log(hinode_line,flare_line,hinode_path):
@@ -128,14 +125,8 @@ def write_log(hinode_line,flare_line,hinode_path):
         print(logtext,file = f)
 
 def export_csv(hinode_df,old_path):
-    hinode_df["BFlare"] = hinode_df["BFlare"].map(lambda x:"   ".join(x))#リストのままだとCSVに書き出しできないのでタブ区切りに変換
-    hinode_df["CFlare"] = hinode_df["CFlare"].map(lambda x:"   ".join(x))
-    hinode_df["MFlare"] = hinode_df["MFlare"].map(lambda x:"   ".join(x))
-    hinode_df["XFlare"] = hinode_df["XFlare"].map(lambda x:"   ".join(x))
+    hinode_df["Flare"] = hinode_df["Flare"].map(lambda x:"   ".join(x))#リストのままだとCSVに書き出しできないのでタブ区切りに変換
     new_path = "flare_labeled/{}".format(old_path.split("/")[-1])
     hinode_df.to_csv(new_path)
-
-
-
 
 main()

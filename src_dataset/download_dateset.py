@@ -47,7 +47,7 @@ def main ():
                         pass # TODO:ARの場合のダウンロード
                     elif(contents=="CH"):
                         pass # TODO:CHの場合のダウンロード
-                time.sleep(300)
+                time.sleep(600)
             filename = "../{0}/{0}{1}.csv".format(contents,year)
             contents_df.to_csv(filename)
             print(filename)
