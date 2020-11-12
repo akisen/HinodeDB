@@ -21,6 +21,7 @@ def main():
     sol_df = initialize_sol_df(sol_data_path)
     if (contents=="FL"):
         flares = extract_flares(hinode_df)
+        print(flares)
         event_df = sol_df.query("index in @flares")
     elif (contents=="AR"):
         pass # TODO:ARの場合の処理
@@ -42,6 +43,8 @@ def initialize_sol_df(filepath):
 def extract_flares(hinode_df):
     flares = [column.split("   ") for column in hinode_df["Flare"]]
     flares = list(chain.from_iterable(flares))
+    flares = [flare[:-5] for flare in flares]
+    print(flares)
     return set(flares)
 
 main()

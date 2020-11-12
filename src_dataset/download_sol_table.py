@@ -48,10 +48,10 @@ def main ():
                         pass # TODO:ARの場合のダウンロード
                     elif(contents=="CH"):
                         pass # TODO:CHの場合のダウンロード
+                print(contents_df)
                 time.sleep(600)
-                filename = "../{0}/SOL_all_{0}{1}.csv".format(contents,year)
-                contents_df.to_csv(filename)
-                print(filename)
+            filename = "../{0}/SOL_all_{0}{1}.csv".format(contents,year)
+            contents_df.to_csv(filename)
             
 
 def get_last_date(dt):

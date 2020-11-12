@@ -50,7 +50,6 @@ def main ():
                 time.sleep(600)
             filename = "../{0}/{0}{1}.csv".format(contents,year)
             contents_df.to_csv(filename)
-            print(filename)
             
 
 def get_last_date(dt):
