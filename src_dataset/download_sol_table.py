@@ -41,17 +41,20 @@ def main ():
                         tend = get_last_date(tend)# 月末ならば末日までダウンロードに変更
                     if(contents=="FL"):
                         if("contents_df" in locals()):
-                            pd.concat([contents_df,download_flare(tstart,tend)])
+                            contents_df = pd.concat([contents_df,download_flare(tstart,tend)])
+                            print("contents_df exists")
+                            # print(download_flare(tstart,tend))
+                            time.sleep(1800)
                         else:
                             contents_df = download_flare(tstart,tend)
+                            print("contents_df not exists")
                     elif(contents=="AR"):
                         pass # TODO:ARの場合のダウンロード
                     elif(contents=="CH"):
                         pass # TODO:CHの場合のダウンロード
-                print(contents_df)
-                time.sleep(600)
-            filename = "../{0}/SOL_all_{0}{1}.csv".format(contents,year)
-            contents_df.to_csv(filename)
+                    print(contents_df)
+                    filename = "../{0}/SOL_all_{0}{1}.csv".format(contents,year)
+                    contents_df.to_csv(filename)
             
 
 def get_last_date(dt):
