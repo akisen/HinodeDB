@@ -17,6 +17,7 @@ def main():
     year = labeled_data_path[-8:-4]
     sol_data_path = args[1]
     contents = args[2]
+    filepath  = args[3]
     hinode_df = initialize_hinode_df(labeled_data_path)
     sol_df = initialize_sol_df(sol_data_path)
     if (contents=="FL"):
@@ -27,7 +28,6 @@ def main():
         pass # TODO:ARの場合の処理
     elif(contents=="CH"):
         pass # TODO:CHのときの処理
-    filepath = "../{0}/sol_event_{0}{1}.csv".format(contents,year)
     event_df.to_csv(filepath)
 
 
