@@ -1,16 +1,38 @@
+"""
+Hinodeの観測データとHekの観測データからともに観測している部分を抽出し、Hinode観測データに追記したものを出力するスクリプト
+---
+ディレクトリ構成
+HinodeDB/
+    ├sot_sp/
+        └sot_spによって観測されたデータ群
+    ├sot_fg/
+        └sot_fgによって観測されたデータ群
+    ├eis/
+        └eisによって観測されたデータ群
+    ├xrt
+        └xrtによって観測されたデータ群
+    ├flare
+        └HEKからダウンロードしたデータ群(download_sol_table.pyによってDL可能)
+    ├src_dataset
+        └データセットの作成に必要なスクリプト(本スクリプトを含む)
+---
+"""
+
+import datetime
+import glob
+import sys
+
+import astropy.units as u
+import pandas as pd
 import sunpy.coordinates
 import sunpy.map
 from astropy.coordinates import SkyCoord
-import astropy.units as u
-import datetime
-import sys
-import pandas as pd
+from shapely.geometry import Point, Polygon
 from sunpy.coordinates import frames
-import glob
-import glob
-import utils
-from shapely.geometry import Polygon,Point
 from tqdm import tqdm
+
+import utils
+
 YEARS = [2010+i for i in range(10)]
 SOT_SP_PATH = "sot_sp/SOTSP_*.csv"
 SOT_FG_PATH = "sot_fg/SOTFG_*.csv"
@@ -33,13 +55,13 @@ def main():
             else:
                 hinode_df = initialize_hinode_df(hinode_dic[str(year)])
                 with tqdm(total = len(flare_df)) as pbar:
-                    for flare_line in flare_df.itertuples():
-                        flare_point = line_to_point_flare(flare_line)
-                        for hinode_line in hinode_df.itertuples():
-                            hinode_polygon = line_to_polygon_hinode(hinode_line)
-                            if is_in_time(hinode_line,flare_line) and is_contained(hinode_polygon,flare_point):
-                                add_flare_label(hinode_line,flare_line)
-                                write_log(hinode_line,flare_line,hinode_dic[str(year)])
+                    for flare_row in flare_df.itertuples():
+                        flare_point = line_to_point_flare(flare_row)
+                        for hinode_row in hinode_df.itertuples():
+                            hinode_polygon = line_to_polygon_hinode(hinode_row)
+                            if is_in_time(hinode_row,flare_row) and is_contained(hinode_polygon,flare_point):
+                                add_flare_label(hinode_row,flare_row)
+                                write_log(hinode_row,flare_row,hinode_dic[str(year)])
                         pbar.update(1)
                 utils.pickle_dump(hinode_df,"pickles/{}pickle".format(hinode_dic[str(year)].split("/")[-1][:-3]))
                 export_csv(hinode_df,hinode_dic[str(year)])
@@ -97,31 +119,31 @@ def line_to_polygon_hinode (line):
 def is_contained(polygon,point):
     return polygon.contains(point)
 
-def is_in_time (hinode_line,flare_line):
-    hinode_obs = hinode_line.DATE_OBS
-    hinode_end = hinode_line.DATE_END
-    flare_start =  datetime.datetime.strptime(flare_line.event_starttime,"%Y-%m-%dT%H:%M:%S")
-    flare_end = datetime.datetime.strptime(flare_line.event_endtime,"%Y-%m-%dT%H:%M:%S")
+def is_in_time (hinode_row,flare_row):
+    hinode_obs = hinode_row.DATE_OBS
+    hinode_end = hinode_row.DATE_END
+    flare_start =  datetime.datetime.strptime(flare_row.event_starttime,"%Y-%m-%dT%H:%M:%S")
+    flare_end = datetime.datetime.strptime(flare_row.event_endtime,"%Y-%m-%dT%H:%M:%S")
     return flare_start <= hinode_obs < flare_end
 
-def add_flare_label(hinode_line,flare_line):
-    flare_class = flare_line.fl_goescls[0]
-    flare_label = "{}:{}".format(flare_line.SOL_standard,flare_line.fl_goescls)
+def add_flare_label(hinode_row,flare_row):
+    flare_class = flare_row.fl_goescls[0]
+    flare_label = "{}:{}".format(flare_row.SOL_standard,flare_row.fl_goescls)
     if(flare_class == "B"):
-        hinode_line.BFlare.append(flare_label)
+        hinode_row.BFlare.append(flare_label)
         tqdm.write("B:{}".format(flare_label))
     elif(flare_class == "C"):
-        hinode_line.CFlare.append(flare_label)
+        hinode_row.CFlare.append(flare_label)
         tqdm.write("C:{}".format(flare_label))
     elif(flare_class == "M"):
-        hinode_line.MFlare.append(flare_label)
+        hinode_row.MFlare.append(flare_label)
         tqdm.write("M:{}".format(flare_label))
     elif(flare_class == "`X"):
-        hinode_line.XFlare.append(flare_label)
+        hinode_row.XFlare.append(flare_label)
         tqdm.write("X:{}".format(flare_label))
 
-def write_log(hinode_line,flare_line,hinode_path):
-    logtext = "intersection\nflare_time{}-{}\nflare_point:{}\nhinode_time{}\nhinode_polygon:XCEN{},YCEN{},FOVX{},FOVY{}".format(flare_line.event_starttime,flare_line.event_endtime,flare_line.hpc_coord,hinode_line.DATE_OBS,hinode_line.XCEN,hinode_line.YCEN,hinode_line.FOVX,hinode_line.FOVY)
+def write_log(hinode_row,flare_row,hinode_path):
+    logtext = "intersection\nflare_time{}-{}\nflare_point:{}\nhinode_time{}\nhinode_polygon:XCEN{},YCEN{},FOVX{},FOVY{}".format(flare_row.event_starttime,flare_row.event_endtime,flare_row.hpc_coord,hinode_row.DATE_OBS,hinode_row.XCEN,hinode_row.YCEN,hinode_row.FOVX,hinode_row.FOVY)
     tqdm.write(logtext)
     logpath = "logs/log_{}txt".format(hinode_path.split("/")[-1][:-3])
     with open (logpath,"a") as f:
