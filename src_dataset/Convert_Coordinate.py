@@ -50,6 +50,7 @@ def main():
                    sot_fg_paths_dic, eis_paths_dic, xrt_path_dic]
     flare_path_dic = path_to_dic(FLARE_PATH)
     for year in YEARS:
+        #TODO:AR,CHへの分岐を追加
         flare_df = read_flare_csv(flare_path_dic[str(year)])
         for hinode_dic in hinode_dics:
             if (hinode_dic.__len__() == 7 and year > 2016):  # sot_fgのデータが2016年分までしかないため
@@ -58,9 +59,9 @@ def main():
                 hinode_df = initialize_hinode_df(hinode_dic[str(year)])
                 with tqdm(total=len(flare_df), desc="{}".format(hinode_dic[str(year)])) as pbar:
                     for flare_row in flare_df.itertuples():
-                        flare_point = line_to_point_flare(flare_row)
+                        flare_point = row_to_point_flare(flare_row)
                         for hinode_row in hinode_df.itertuples():
-                            hinode_polygon = line_to_polygon_hinode(hinode_row)
+                            hinode_polygon = row_to_polygon_hinode(hinode_row)
                             if is_in_time(hinode_row, flare_row) and is_contained(hinode_polygon, flare_point):
                                 add_flare_label(hinode_row, flare_row)
                                 write_log(hinode_row, flare_row,
@@ -103,27 +104,27 @@ def initialize_hinode_df(path):
     return hinode_df
 
 
-def line_to_point_flare(line):
-    point = line.hpc_coord[6:-1].split(" ")
+def row_to_point_flare(row):
+    point = row.hpc_coord[6:-1].split(" ")
     point = [float(p) for p in point]  # Int型に型変換
     point = Point(point)
     return point
 
 
-def line_to_polygon_flare(line):
-    ll_x = line.boundbox_c1ll
-    ll_y = line.boundbox_c2ll
-    ur_x = line.boundbox_c1ur
-    ur_y = line.boundbox_c2ur
+def row_to_polygon_flare(row):
+    ll_x = row.boundbox_c1ll
+    ll_y = row.boundbox_c2ll
+    ur_x = row.boundbox_c1ur
+    ur_y = row.boundbox_c2ur
     polygon = Polygon([(ll_x, ll_y), (ll_x, ur_y), (ur_x, ur_y), (ur_x, ll_y)])
     return polygon
 
 
-def line_to_polygon_hinode(line):
-    ll_x = line.XCEN-(line.FOVX//2)
-    ur_x = line.XCEN+(line.FOVX//2)
-    ll_y = line.YCEN-(line.FOVY//2)
-    ur_y = line.YCEN+(line.FOVY//2)
+def row_to_polygon_hinode(row):
+    ll_x = row.XCEN-(row.FOVX//2)
+    ur_x = row.XCEN+(row.FOVX//2)
+    ll_y = row.YCEN-(row.FOVY//2)
+    ur_y = row.YCEN+(row.FOVY//2)
     polygon = Polygon([(ll_x, ll_y), (ll_x, ur_y), (ur_x, ur_y), (ur_x, ll_y)])
     return polygon
 
