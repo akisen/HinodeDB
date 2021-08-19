@@ -11,7 +11,7 @@ HinodeDB/
         └eisによって観測されたデータ群
     ├xrt
         └xrtによって観測されたデータ群
-    ├flare
+    ├FL
         └HEKからダウンロードしたデータ群(download_sol_table.pyによってDL可能)
     ├src_dataset
         └データセットの作成に必要なスクリプト(本スクリプトを含む)
@@ -38,7 +38,7 @@ SOT_SP_PATH = "sot_sp/SOTSP_*.csv"
 SOT_FG_PATH = "sot_fg/SOTFG_*.csv"
 EIS_PATH = "eis/EIS_*.csv"
 XRT_PATH = "xrt/XRT_*.csv"
-FLARE_PATH = "flare/Flare*.csv"
+FLARE_PATH = "FL/SOL_all_FL*.csv"
 
 def main():
     sot_sp_paths_dic = path_to_dic(SOT_SP_PATH)#各年度でPathを格納した辞書を作成
@@ -54,7 +54,7 @@ def main():
                 continue
             else:
                 hinode_df = initialize_hinode_df(hinode_dic[str(year)])
-                with tqdm(total = len(flare_df)) as pbar:
+                with tqdm(total = len(flare_df),desc="{}".format(hinode_dic[str(year)])) as pbar:
                     for flare_row in flare_df.itertuples():
                         flare_point = line_to_point_flare(flare_row)
                         for hinode_row in hinode_df.itertuples():
@@ -63,7 +63,7 @@ def main():
                                 add_flare_label(hinode_row,flare_row)
                                 write_log(hinode_row,flare_row,hinode_dic[str(year)])
                         pbar.update(1)
-                utils.pickle_dump(hinode_df,"pickles/{}pickle".format(hinode_dic[str(year)].split("/")[-1][:-3]))
+                # utils.pickle_dump(hinode_df,"pickles/{}pickle".format(hinode_dic[str(year)].split("/")[-1][:-3]))
                 export_csv(hinode_df,hinode_dic[str(year)])
                 
 def path_to_dic(path_str):
