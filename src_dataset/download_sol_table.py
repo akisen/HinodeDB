@@ -55,7 +55,7 @@ def main():
                     elif(contents == "CH"):
                         pass  # TODO:CHの場合のダウンロード
                     # print(contents_df)
-                    # time.sleep(10800)
+                    time.sleep(3600)
             if (contents == "FL"):
                 contents_df.drop('event_clippedtemporal', axis=1)
             contents_df.set_index("SOL_standard")

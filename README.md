@@ -27,7 +27,7 @@ Heliophysics event knowledgebase(HEK)からダウンロードしたデータセ�
 </pre>
 ## ToDo
 * [x] うるう秒の修正
-* [ ] SOLへのColumn追加(取得日時含む)
+* [x] SOLへのColumn追加(取得日時含む)
 * [x] テーブル構成の統一
 * [x] 48番のデータ列を空白に
 
