@@ -63,7 +63,6 @@ def main():
             contents_df = contents_df.sort_index(axis=1,)
             filename = "../{0}/SOL_all_{0}{1}.csv".format(contents, year)
             contents_df.to_csv(filename, index=False)
-            exit()
 
 
 def get_last_date(dt):
