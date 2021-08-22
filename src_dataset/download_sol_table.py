@@ -27,8 +27,8 @@ contents = args.contents
 
 logger = logging.getLogger()
 client = hek.HEKClient()
-years = [2010+i for i in range(2)]
-months = [i+1 for i in range(2)]
+years = [2010+i for i in range(7)]
+months = [i+1 for i in range(12)]
 
 
 def main():
